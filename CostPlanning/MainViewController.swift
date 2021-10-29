@@ -9,7 +9,7 @@ import UIKit
 import RealmSwift
 
 class MainViewController: UIViewController {
-    
+    // main
     let realm = try! Realm() //открывает базу данных
     var spendingArray: Results<Spending>! //массив для хранения записей бд
 
