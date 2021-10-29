@@ -27,10 +27,12 @@ class MainViewController: UIViewController {
     
     @IBAction func addBtn(_ sender: UIButton) {
         
-        let value = Spending(value: ["Gazprom", "950 ₽"]) //формируем строку для БД
+        let value = Spending(value: ["Gazprom", "950 ₽"]) //формируем строку для  записи БД
         try! realm.write { //добавляем значение в бд
             realm.add(value)
         }
+        
+        tableView.reloadData() //обновляем таблицу вывода из бд
     }
 }
 
@@ -43,11 +45,28 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource { //п�
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell { //параметры ячейки
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell //приводим к типу созданной ячейки. withIdentifier - идентификатор
         
-        let spending = spendingArray[indexPath.row]
+        let spending = spendingArray[indexPath.row] //массив со значением ячеек indexPath - выбранная ячейка
         
+        // Присваеваем полям значение из бд SpendingModel
         cell.namePaymentCell.text = spending.payment
+        cell.costPaymentCell.text = spending.costPayment
+        cell.datePaymentCell.text = "\(spending.date)"
+        
         return cell
     }
     
+    public func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {//функция удаления ячейке из тейбл вью и бд
+        
+        let editingRow = spendingArray[indexPath.row] // массив со значениями из бд
+        
+        let deleteAction = UITableViewRowAction(style: .destructive, title: "Удалить") { [self] _, _ in //экшн по удалению из таблицы и бд
+            try! self.realm.write { // удаляем значение из бд
+                self.realm.delete(editingRow) //удаляем значение из бд по значению из  editingRow
+                tableView.reloadData() //обновляем таблицу
+            }
+        }
+        
+        return [deleteAction]
+    }
     
 }
