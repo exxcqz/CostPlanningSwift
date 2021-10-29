@@ -55,7 +55,7 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource { //п�
         return cell
     }
     
-    public func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {//функция удаления ячейке из тейбл вью и бд
+    public func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {//функция удаления ячейке из тейбл вью и бд!
         
         let editingRow = spendingArray[indexPath.row] // массив со значениями из бд
         
