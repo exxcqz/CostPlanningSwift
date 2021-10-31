@@ -12,38 +12,32 @@ class MainViewController: UIViewController {
     
     let realm = try! Realm() //открывает базу данных
     var spendingArray: Results<Spending>! //массив для хранения записей бд
+    var mainDataArray: Results<MainData>! //Массив для хранений записей бд со значениями баланса и тд
 
     @IBOutlet weak var balanceLabel: UILabel!
     @IBOutlet weak var balanceForDay: UILabel!
     @IBOutlet weak var balanceForWeek: UILabel!
     @IBOutlet weak var balanceSave: UILabel!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var calcDate: UILabel!
     
         
     override func viewDidLoad() {
         super.viewDidLoad()
         spendingArray = realm.objects(Spending.self) //помещаем элементы из бд в массив
+        mainDataArray = realm.objects(MainData.self) //помещаем элементы из бд в массив
+        balanceLabel.text = mainDataArray[0].balance + " Р" //помещаем баланс из бд в лейбл
+        calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату из бд в лейбл
     }
-    
-    @IBAction func addBtn(_ sender: UIButton) {
-        
-        let value = Spending(value: ["Gazprom", "950 ₽"]) //формируем строку для  записи БД
-        try! realm.write { //добавляем значение в бд
-            realm.add(value)
-        }
-        
-        tableView.reloadData() //обновляем таблицу вывода из бд
-    }
+
     
     @IBAction func addPayment(_ sender: UIButton) { // кнопка добавления платежа
         let alertController = UIAlertController(title: "Добавить платеж", message: "Введите название платежа и сумму", preferredStyle: .alert) //создаем окно alert контроллера
         let alertInstall = UIAlertAction(title: "Установить", style: .default) { [self] action in //устанавливаем кнопку установить в алертконтроллере
             
             let textFieldName = alertController.textFields?[0].text //принимаем текст с первого textField
-            print(textFieldName!)
             
             let textFieldSum = alertController.textFields?[1].text //принимаем текст со второго textField
-            print(textFieldSum!)
             
             if textFieldName != "" && textFieldSum != "" { //проверка чтобы поля не были пустыми
                 let value = Spending(value: [textFieldName, "\(textFieldSum!) Р"]) //формируем строку для  записи БД

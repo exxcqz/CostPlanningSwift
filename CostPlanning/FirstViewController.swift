@@ -13,21 +13,40 @@ class FirstViewController: UIViewController {
     let realm = try! Realm()
     var mainDataArray: Results<MainData>!
 
-    
+    @IBOutlet weak var tfBalance: UITextField!
+    @IBOutlet weak var tfSaveMoney: UITextField!
+    var calcDate: String = ""
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        
     }
     
     @IBAction func unwindSegueToMainScreen(segue: UIStoryboardSegue) {
             
         }
-
+    
+    
+    @IBAction func datePicker(_ sender: UIDatePicker) {
+        let dateFormatter = DateFormatter() //отображает формат даты
+        dateFormatter.dateStyle = .short //выбираем средний формат даты
+        dateFormatter.locale = Locale(identifier: "ru_RU") //локализирвоали вывод даты
+        let dateValue = dateFormatter.string(from: sender.date) //переводит дату в тип Стринг
+        print(dateValue)
+        calcDate = dateValue
+    }
+    
     @IBAction func addInfoButton(_ sender: UIButton) {
+        let balance = tfBalance.text //данные с textField
+        let saveMoney = tfSaveMoney.text //данные с textField
+        if balance != "" && saveMoney != "" && calcDate != "" {
+            let value = MainData(value: [balance, calcDate, saveMoney, "1", "1"]) //формируем строку для  записи БД
+            try! realm.write { //добавляем значение в бд
+                realm.add(value)
+            }
+        }
+        
         performSegue(withIdentifier: "goMainSegue", sender: nil)
     }
-    //update interface
 }

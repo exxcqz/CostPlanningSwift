@@ -309,6 +309,7 @@
                         <outlet property="balanceForWeek" destination="am9-gk-k8m" id="G9H-KB-jHK"/>
                         <outlet property="balanceLabel" destination="KDf-c1-djT" id="Qrh-Ks-YEI"/>
                         <outlet property="balanceSave" destination="Kfj-97-KXW" id="gVl-NC-DWM"/>
+                        <outlet property="calcDate" destination="4CA-cE-uv0" id="95r-Gi-YFd"/>
                         <outlet property="tableView" destination="He5-wk-L6B" id="FNI-v0-Ci6"/>
                     </connections>
                 </viewController>
@@ -343,6 +344,10 @@
                             </label>
                             <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" style="wheels" translatesAutoresizingMaskIntoConstraints="NO" id="9IZ-gO-Qko">
                                 <rect key="frame" x="20" y="259" width="374" height="171"/>
+                                <locale key="locale" localeIdentifier="ru"/>
+                                <connections>
+                                    <action selector="datePicker:" destination="sTg-gw-t4u" eventType="valueChanged" id="YdE-V1-Gtl"/>
+                                </connections>
                             </datePicker>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="538-cC-vSD">
                                 <rect key="frame" x="122" y="446" width="170" height="42.5"/>
@@ -389,6 +394,10 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Добавить данные" id="G4S-qc-Yuw"/>
+                    <connections>
+                        <outlet property="tfBalance" destination="pkM-pZ-I7h" id="cgQ-QW-cVV"/>
+                        <outlet property="tfSaveMoney" destination="web-3n-JeC" id="3Vg-9V-u8N"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="I4w-s4-mDk" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
