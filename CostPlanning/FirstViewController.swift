@@ -5,10 +5,17 @@
 //  Created by Nikita on 19.10.2021.
 //
 
+import RealmSwift
 import UIKit
 
 class FirstViewController: UIViewController {
+    
+    let realm = try! Realm()
+    var mainDataArray: Results<MainData>!
 
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
