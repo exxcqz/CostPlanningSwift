@@ -20,13 +20,8 @@ class FirstViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        mainDataArray = realm.objects(MainData.self) //помещаем элементы из бд в массив
     }
-    
-    @IBAction func unwindSegueToMainScreen(segue: UIStoryboardSegue) {
-            
-        }
-    
     
     @IBAction func datePicker(_ sender: UIDatePicker) {
         let dateFormatter = DateFormatter() //отображает формат даты
@@ -38,15 +33,28 @@ class FirstViewController: UIViewController {
     }
     
     @IBAction func addInfoButton(_ sender: UIButton) {
+        let mainData = self.realm.objects(MainData.self) //объект нашей бд
         let balance = tfBalance.text //данные с textField
         let saveMoney = tfSaveMoney.text //данные с textField
-        if balance != "" && saveMoney != "" && calcDate != "" {
+        
+        if mainData.isEmpty { //проверяет есть ли строка в бд
+            if balance != "" && saveMoney != "" && calcDate != "" {
             let value = MainData(value: [balance, calcDate, saveMoney, "1", "1"]) //формируем строку для  записи БД
             try! realm.write { //добавляем значение в бд
                 realm.add(value)
+                }
+            }
+        } else { //если в бд есть запись, то просто редактируем
+            if balance != "" && saveMoney != "" && calcDate != "" {
+                try! realm.write { //редактируем строку в бд!!!
+                    mainData[0].balance = balance!
+                    mainData[0].calcDate = calcDate
+                    mainData[0].saveMoney = saveMoney!
+                    mainData[0].leftMoneyDay = ""
+                    mainData[0].leftMoneyWeek = ""
+                }
             }
         }
         
-        performSegue(withIdentifier: "goMainSegue", sender: nil)
     }
 }

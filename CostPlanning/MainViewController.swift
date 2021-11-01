@@ -26,21 +26,36 @@ class MainViewController: UIViewController {
         super.viewDidLoad()
         spendingArray = realm.objects(Spending.self) //помещаем элементы из бд в массив
         mainDataArray = realm.objects(MainData.self) //помещаем элементы из бд в массив
-        balanceLabel.text = mainDataArray[0].balance + " Р" //помещаем баланс из бд в лейбл
-        calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату из бд в лейбл
+        if mainDataArray.isEmpty { // Если прила запускается в первый раз, то переводит на первый контроллер
+            DispatchQueue.main.async {
+                self.performSegue(withIdentifier: "goFirstSegue", sender: nil)
+            }
+        } else {
+            updateMainInfo() //обновляем баланс и тд
+        }
     }
-
     
-    @IBAction func addPayment(_ sender: UIButton) { // кнопка добавления платежа
+    @IBAction func unwindSegueToMainScreen(segue: UIStoryboardSegue) { //функция возвращения с первого контроллера
+        updateMainInfo() //обновляем баланс и тд
+        }
+
+    // кнопка добавления платежа
+    @IBAction func addPayment(_ sender: UIButton) {
         let alertController = UIAlertController(title: "Добавить платеж", message: "Введите название платежа и сумму", preferredStyle: .alert) //создаем окно alert контроллера
         let alertInstall = UIAlertAction(title: "Установить", style: .default) { [self] action in //устанавливаем кнопку установить в алертконтроллере
             
             let textFieldName = alertController.textFields?[0].text //принимаем текст с первого textField
-            
             let textFieldSum = alertController.textFields?[1].text //принимаем текст со второго textField
             
             if textFieldName != "" && textFieldSum != "" { //проверка чтобы поля не были пустыми
-                let value = Spending(value: [textFieldName, "\(textFieldSum!) Р"]) //формируем строку для  записи БД
+                
+                let time = NSDate() //получаем текущую дату
+                let formatter = DateFormatter() //меняем формат вывода даты
+                formatter.dateFormat = "dd.MM.YYYY" //указываем как отображать дату
+                formatter.timeZone = TimeZone(secondsFromGMT: 0) // указатель временной зоны относительно гринвича
+                let resultDate = formatter.string(from: time as Date) //приводим дату к типу String
+                
+                let value = Spending(value: [textFieldName, "\(textFieldSum!) ₽", resultDate]) //формируем строку для  записи БД
                 try! self.realm.write { //добавляем значение в бд
                     self.realm.add(value)
                 }
@@ -65,6 +80,10 @@ class MainViewController: UIViewController {
         present(alertController, animated: true, completion: nil) // вызывает показ контрллера на экран
     }
     
+    func updateMainInfo() { // функция обновления данных из бд
+        balanceLabel.text = mainDataArray[0].balance + " ₽" //помещаем баланс из бд в лейбл
+        calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату из бд в лейбл
+    }
 }
 
 extension MainViewController: UITableViewDelegate, UITableViewDataSource { //подписываемя под протоколы для tableViews и нужно создать файл типа UITableViewCell

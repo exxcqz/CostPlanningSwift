@@ -11,7 +11,7 @@ class Spending: Object { //создали столбцы для базы дан�
     
     @objc dynamic var payment = ""
     @objc dynamic var costPayment = ""
-    @objc dynamic var date = NSDate()
+    @objc dynamic var date = ""
 }
 
 class MainData: Object { //2-я бд для вывода расчетов
