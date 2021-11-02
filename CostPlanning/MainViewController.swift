@@ -27,7 +27,7 @@ class MainViewController: UIViewController {
         spendingArray = realm.objects(Spending.self) //помещаем элементы из бд в массив
         mainDataArray = realm.objects(MainData.self) //помещаем элементы из бд в массив
         if mainDataArray.isEmpty { // Если прила запускается в первый раз, то переводит на первый контроллер
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { //переход на первый контроллер
                 self.performSegue(withIdentifier: "goFirstSegue", sender: nil)
             }
         } else {
@@ -35,7 +35,7 @@ class MainViewController: UIViewController {
         }
     }
     
-    @IBAction func unwindSegueToMainScreen(segue: UIStoryboardSegue) { //функция возвращения с первого контроллера
+    @IBAction func unwindSegueToMainScreen(segue: UIStoryboardSegue) { //функция возвращения с первого контроллера, работает по кнопке добавить платеж
         updateMainInfo() //обновляем баланс и тд
         }
 
@@ -83,6 +83,23 @@ class MainViewController: UIViewController {
     func updateMainInfo() { // функция обновления данных из бд
         balanceLabel.text = mainDataArray[0].balance + " ₽" //помещаем баланс из бд в лейбл
         calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату из бд в лейбл
+        balanceForDay.text = calcMoneyForDay(dateNow: NSDate() as Date, dateCalc: stringToDate(strDate: mainDataArray[0].calcDate))
+        balanceSave.text = mainDataArray[0].saveMoney + " ₽"
+    }
+    
+    func calcMoneyForDay(dateNow: Date, dateCalc: Date) -> String { //рассчитываем сколько денег на день
+        let diffInDays = Calendar.current.dateComponents([.day], from: dateNow, to: dateCalc).day //получаем сколько дней между текущей датой и расчетной
+        guard diffInDays != nil else { return "ErrorCalc"}
+        let result: Double = Double(mainDataArray[0].balance)! / Double(diffInDays! + 1) //делим наш баланс на количество дней
+        return String(round(result * 100)/100) //возвращаем и округляем значение до сотых
+    }
+    
+    func stringToDate(strDate: String) -> Date { //меняем тип даты с String на Date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        let result = dateFormatter.date(from: strDate)!
+        print(result)
+        return result
     }
 }
 
