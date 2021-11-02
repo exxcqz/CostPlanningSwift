@@ -79,16 +79,20 @@ class MainViewController: UIViewController {
     func updateMainInfo() { // функция обновления данных из бд
         let balance = Double(mainDataArray[0].balance)! - Double(mainDataArray[0].saveMoney)! //вычитаем из основного баланса, сумму из saveMoney
         balanceLabel.text = "\(balance) ₽" //помещаем баланс в лейбл
-        calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату из бд в лейбл
-        balanceForDay.text = calcMoneyForDay(balance: balance, dateNow: NSDate() as Date, dateCalc: stringToDate(strDate: mainDataArray[0].calcDate))
+        
+        calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату(до какого числа считать) из бд в лейбл
+        
+        let moneyForDay = calcMoneyForDay(balance: balance, dateNow: NSDate() as Date, dateCalc: stringToDate(strDate: mainDataArray[0].calcDate)) //расчет денег на 1 день
+        balanceForDay.text = String(deductionOfCostsDay(moneyForDay: moneyForDay)) + " ₽" //вычитаем из баланса на день затраты, совершенные в этот же день и помещаем в лейбл
+        
         balanceSave.text = mainDataArray[0].saveMoney + " ₽"
     }
     
-    func calcMoneyForDay(balance: Double, dateNow: Date, dateCalc: Date) -> String { //рассчитываем сколько денег на день
+    func calcMoneyForDay(balance: Double, dateNow: Date, dateCalc: Date) -> Double { //рассчитываем сколько денег на день
         let diffInDays = Calendar.current.dateComponents([.day], from: dateNow, to: dateCalc).day //получаем сколько дней между текущей датой и расчетной
-        guard diffInDays != nil else { return "ErrorCalc"}
+        
         let result: Double = balance / Double(diffInDays! + 1) //делим наш баланс на количество дней
-        return String(round(result * 100)/100) //возвращаем и округляем значение до сотых
+        return round(result * 100)/100 //возвращаем и округляем значение до сотых
     }
     
     func stringToDate(strDate: String) -> Date { //меняем тип даты с String на Date
@@ -118,10 +122,15 @@ class MainViewController: UIViewController {
         return formatter.string(from: time as Date) //приводим дату к типу String
     }
     
-    func deductionOfCostsDay() { // вычитаем из баланса на день затраты, совершенные в этот же день
+    func deductionOfCostsDay(moneyForDay: Double) -> Double { // вычитаем из баланса на день затраты, совершенные в этот же день
+        let filterSpendingArray = spendingArray.filter({ $0.date == self.currentDate() }) //фильтруем платежы по сегодняшней дате
+        var result = 0.0
         
+        for spendingString in filterSpendingArray { //суммируем все платежы, совершенные за текущий день
+            result += Double(spendingString.costPayment)!
+        }
+        return round((moneyForDay - result) * 100)/100 //округляем и возвращаем результат
     }
-
 }
 
 extension MainViewController: UITableViewDelegate, UITableViewDataSource { //подписываемя под протоколы для tableViews и нужно создать файл типа UITableViewCell
@@ -151,12 +160,13 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource { //п�
             
             
             sumAndSubtractBalance(number: Double(editingRow.costPayment)!, sumOrSub: false)
-            updateMainInfo()
             
             try! self.realm.write { // удаляем значение из бд
                 self.realm.delete(editingRow) //удаляем значение из бд по значению из  editingRow
                 tableView.reloadData() //обновляем таблицу
             }
+            
+            updateMainInfo()
         }
         return [deleteAction]
     }
