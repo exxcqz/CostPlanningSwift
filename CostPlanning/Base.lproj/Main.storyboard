@@ -126,7 +126,7 @@
                                                     <backgroundConfiguration key="background" image="edit"/>
                                                 </buttonConfiguration>
                                                 <connections>
-                                                    <segue destination="4dw-tL-93D" kind="unwind" unwindAction="unwindSegueToMainScreenWithSegue:" id="99C-1w-28v"/>
+                                                    <action selector="changeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="RXe-Vb-xsd"/>
                                                 </connections>
                                             </button>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vNR-5U-ej2">
@@ -137,6 +137,7 @@
                                                     <fontDescription key="titleFontDescription" name="HelveticaNeue-Light" family="Helvetica Neue" pointSize="17"/>
                                                 </buttonConfiguration>
                                                 <connections>
+                                                    <action selector="changeButton:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SbS-7h-ENU"/>
                                                     <segue destination="sTg-gw-t4u" kind="show" identifier="goFirstSegue" id="4ec-Xk-Nq1"/>
                                                 </connections>
                                             </button>
@@ -314,7 +315,6 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <exit id="4dw-tL-93D" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="1627.536231884058" y="52.232142857142854"/>
         </scene>

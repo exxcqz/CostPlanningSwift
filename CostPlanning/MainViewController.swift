@@ -74,6 +74,11 @@ class MainViewController: UIViewController {
         present(alertController, animated: true, completion: nil) // вызывает показ контрллера на экран
     }
     
+    @IBAction func changeButton(_ sender: UIButton) { 
+        performSegue(withIdentifier: "goFirstSegue", sender: nil) // переход на первый контроллер
+    }
+    
+    
     func updateMainInfo() { // функция обновления лейблов
         let balance = Double(mainDataArray[0].balance)! - Double(mainDataArray[0].saveMoney)! //вычитаем из основного баланса, сумму из saveMoney
         balanceLabel.text = "\(balance) ₽" //помещаем баланс в лейбл
