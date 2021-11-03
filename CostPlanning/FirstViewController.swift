@@ -33,9 +33,9 @@ class FirstViewController: UIViewController {
     }
     
     @IBAction func addInfoButton(_ sender: UIButton) {
-        let mainData = self.realm.objects(MainData.self) //объект нашей бд
-        let balance = tfBalance.text //данные с textField
-        let saveMoney = tfSaveMoney.text //данные с textField
+        let mainData = self.realm.objects(MainData.self)
+        let balance = tfBalance.text
+        let saveMoney = tfSaveMoney.text
         
         if mainData.isEmpty { //проверяет есть ли строка в бд
             if balance != "" && saveMoney != "" && calcDate != "" {
@@ -46,7 +46,7 @@ class FirstViewController: UIViewController {
             }
         } else { //если в бд есть запись, то просто редактируем
             if balance != "" && saveMoney != "" && calcDate != "" {
-                try! realm.write { //редактируем строку в бд!!!
+                try! realm.write { //редактируем строку в бд
                     mainData[0].balance = balance!
                     mainData[0].calcDate = calcDate
                     mainData[0].saveMoney = saveMoney!

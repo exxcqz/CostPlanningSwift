@@ -10,9 +10,9 @@ import RealmSwift
 
 class MainViewController: UIViewController {
     
-    let realm = try! Realm() //открывает базу данных
-    var spendingArray: Results<Spending>! //массив для хранения записей бд
-    var mainDataArray: Results<MainData>! //Массив для хранений записей бд со значениями баланса и тд
+    let realm = try! Realm()
+    var spendingArray: Results<Spending>!
+    var mainDataArray: Results<MainData>!
 
     @IBOutlet weak var balanceLabel: UILabel!
     @IBOutlet weak var balanceForDay: UILabel!
@@ -36,51 +36,49 @@ class MainViewController: UIViewController {
     }
     
     @IBAction func unwindSegueToMainScreen(segue: UIStoryboardSegue) { //функция возвращения с первого контроллера, работает по кнопке добавить платеж
-        updateMainInfo() //обновляем баланс и тд
+        updateMainInfo()
         }
 
     // кнопка добавления платежа
     @IBAction func addPayment(_ sender: UIButton) {
         let alertController = UIAlertController(title: "Добавить платеж", message: "Введите название платежа и сумму", preferredStyle: .alert) //создаем окно alert контроллера
         let alertInstall = UIAlertAction(title: "Установить", style: .default) { [self] action in //устанавливаем кнопку установить в алертконтроллере
-            let textFieldName = alertController.textFields?[0].text //принимаем текст с первого textField
-            let textFieldSum = alertController.textFields?[1].text //принимаем текст со второго textField
+            let textFieldName = alertController.textFields?[0].text
+            let textFieldSum = alertController.textFields?[1].text
             
-            if textFieldName != "" && textFieldSum != "" { //проверка чтобы поля не были пустыми
-                
+            if textFieldName != "" && textFieldSum != "" {
                 let value = Spending(value: [textFieldName, textFieldSum, currentDate()]) //формируем строку для  записи БД
                 try! self.realm.write { //добавляем значение в бд
                     self.realm.add(value)
                 }
                 
-                sumAndSubtractBalance(number: Double(textFieldSum!)!, sumOrSub: true) //вычитаем платеж из баланса
+                sumAndSubtractBalance(number: Double(textFieldSum!)!, sumOrSub: true) //вычитаем сумму платежа из баланса
                 updateMainInfo()
                 tableView.reloadData() //обновляем таблицу вывода из бд
             }
         }
         
         alertController.addTextField { (namePayment) in //создаем поля для ввода
-            namePayment.placeholder = "Название" //надпись в текстфилде
+            namePayment.placeholder = "Название"
         }
         
         alertController.addTextField { (sumPayment) in //создаем поля для ввода
-            sumPayment.placeholder = "Сумма" //надпись в текстфилде
+            sumPayment.placeholder = "Сумма"
             sumPayment.keyboardType = .asciiCapableNumberPad // тип клавитуры только цифры
         }
         
         let alertCancel = UIAlertAction(title: "Отмена", style: .default) { _ in } // устанавливаем кнопку отмены в контроллер
-        
         alertController.addAction(alertInstall) // вызываем первое действие
         alertController.addAction(alertCancel) //вызываем действие отмены
         
         present(alertController, animated: true, completion: nil) // вызывает показ контрллера на экран
     }
     
-    func updateMainInfo() { // функция обновления данных из бд
+    func updateMainInfo() { // функция обновления лейблов
         let balance = Double(mainDataArray[0].balance)! - Double(mainDataArray[0].saveMoney)! //вычитаем из основного баланса, сумму из saveMoney
         balanceLabel.text = "\(balance) ₽" //помещаем баланс в лейбл
         
-        calcDate.text = "до \(mainDataArray[0].calcDate)" //помещаем дату(до какого числа считать) из бд в лейбл
+        calcDate.text = "до \(mainDataArray[0].calcDate)"
         
         let moneyForDay = calcMoneyForDay(balance: balance, dateNow: NSDate() as Date, dateCalc: stringToDate(strDate: mainDataArray[0].calcDate)) //расчет денег на 1 день
         balanceForDay.text = String(deductionOfCostsDay(moneyForDay: moneyForDay)) + " ₽" //вычитаем из баланса на день затраты, совершенные в этот же день и помещаем в лейбл
@@ -92,24 +90,24 @@ class MainViewController: UIViewController {
         let diffInDays = Calendar.current.dateComponents([.day], from: dateNow, to: dateCalc).day //получаем сколько дней между текущей датой и расчетной
         
         let result: Double = balance / Double(diffInDays! + 1) //делим наш баланс на количество дней
-        return round(result * 100)/100 //возвращаем и округляем значение до сотых
+        return round(result * 100)/100
     }
     
     func stringToDate(strDate: String) -> Date { //меняем тип даты с String на Date
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yyyy"
-        return dateFormatter.date(from: strDate)! //возвращаем дату с типом Date
+        return dateFormatter.date(from: strDate)!
     }
     
     func sumAndSubtractBalance(number: Double, sumOrSub: Bool) { //функция редактирования баланса при добавлении или удалении платежа
         let resultBalance: Double?
         if sumOrSub {
-            resultBalance = Double(mainDataArray[0].balance)! - number //если тру, то мы вычитаем из баланса
+            resultBalance = Double(mainDataArray[0].balance)! - number
         } else {
-            resultBalance = Double(mainDataArray[0].balance)! + number //если фолс, то прибавляем к балансу
+            resultBalance = Double(mainDataArray[0].balance)! + number
         }
         
-        try! realm.write { //редактируем строку в бд!!!
+        try! realm.write { //редактируем строку в бд
             mainDataArray[0].balance = String(resultBalance!) //меняем баланс в бд
         }
     }
@@ -129,22 +127,22 @@ class MainViewController: UIViewController {
         for spendingString in filterSpendingArray { //суммируем все платежы, совершенные за текущий день
             result += Double(spendingString.costPayment)!
         }
-        return round((moneyForDay - result) * 100)/100 //округляем и возвращаем результат
+        return round((moneyForDay - result) * 100)/100
     }
 }
 
-extension MainViewController: UITableViewDelegate, UITableViewDataSource { //подписываемя под протоколы для tableViews и нужно создать файл типа UITableViewCell
+extension MainViewController: UITableViewDelegate, UITableViewDataSource { //подписываемся под протоколы для tableViews
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { //колличество ячеек в таблице
         return spendingArray.count //возвращаем количество объектов в массиве из бд
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell { //параметры ячейки
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell //приводим к типу созданной ячейки. withIdentifier - идентификатор
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath) as! CustomTableViewCell
         
         let spending = spendingArray[indexPath.row] //массив со значением ячеек indexPath - выбранная ячейка
         
-        // Присваеваем полям значение из бд SpendingModel
+        // Присваеваем полям значения из бд SpendingModel
         cell.namePaymentCell.text = spending.payment
         cell.costPaymentCell.text = spending.costPayment + " ₽"
         cell.datePaymentCell.text = "\(spending.date)"
@@ -152,12 +150,11 @@ extension MainViewController: UITableViewDelegate, UITableViewDataSource { //п�
         return cell
     }
     
-    public func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {//функция удаления ячейке из тейбл вью и бд!
+    public func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {//функция удаления ячейки из тейбл вью и бд!
         
         let editingRow = spendingArray[indexPath.row] // строка из массива со значениями из бд
         
         let deleteAction = UITableViewRowAction(style: .destructive, title: "Удалить") { [self] _, _ in //экшн по удалению из таблицы и бд
-            
             
             sumAndSubtractBalance(number: Double(editingRow.costPayment)!, sumOrSub: false)
             
